@@ -37,15 +37,20 @@ class SmokeSignals
   end
 
   def build_finished(build)
+    project = build.project
     clear_flag
-    build_text = "#{@project.name} build #{build.label}"
-    build_text << (build.failed? ? " broken" : " successful")
-    build_text << ".<br/>See #{build.url} for details."
-    speak(build_text)
+    if build.failed?
+      build_text = "#{@project.name} build #{build.label} broken"
+      build_text << ". Committed by #{project.source_control.latest_revision(project).committed_by}" unless project.nil?
+      build_text << ".<br/>See #{build.url} for details."
+      @failure_message = build_text
+      speak(build_text)
+    end
   end
 
   def build_fixed(build, previous_build=nil)
     clear_flag
+    @failure_message = ""
     speak("#{@project.name} build fixed in #{build.label}.")
   end
 
@@ -60,11 +65,15 @@ class SmokeSignals
     end
   end
 
+  def polling_source_control
+    speak(@failure_message) if @failure_message
+  end
+
   def speak(message)
     room.speak(message) unless room_name.nil?
-  rescue => e
-    logger.error("Error speaking into campfire room #{room_name} for #{@project.name}")
-    raise
+    rescue => e
+      logger.error("Error speaking into campfire room #{room_name} for #{@project.name}")
+      raise
   end
 
   def logger
@@ -94,3 +103,4 @@ class SmokeSignals
 end
 
 Project.plugin :smoke_signals unless SmokeSignals.settings.nil?
+

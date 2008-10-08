@@ -1,10 +1,14 @@
 h1. Smoke Signals
 
+h2. Forked
+
+The original smoke signals was unnecessarily noisy when everything was going smoothly. Smoke signals should only be sent when a build is in trouble. This forked version sends failure messages to campfire when the build breaks and sends them continually until the build is fixed.
+
 h2. Description
 
 A plugin for CruiseControl.rb offering the following features:
 
-* Sends notifications to a Campfire room with the build status (success, failure, fixed) along with a URL to the build.
+* Sends notifications to a Campfire room when the build breaks. The message includes the name of the last committer along with a URL to the build.
 * Detects and sends notifications of Subversion failures.
 * Supports different rooms per project. 
 
